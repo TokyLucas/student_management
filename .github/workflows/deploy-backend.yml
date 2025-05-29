@@ -1,0 +1,35 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build -t backend:latest .
+
+      - name: Tag Docker Image for Docker Hub
+        run: |
+          docker tag backend:latest arinomena/backend:latest
+
+      - name: Docker Hub Login
+        run: echo "dockerAri35" | docker login --username "arinomena" --password-stdin
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push arinomena/backend:latest
+
+      - name: Trigger Railway Deployment for Backend
+        uses: railwayapp/railway-action@v1
+        with:
+          railwayToken: 005fc0c5-f7ba-4f60-8665-e452c23a4c92
+          projectId: 0e4267f7-1167-4dfc-aa1f-d2b6e006fedd
+          deployCommand: "railway up --yes"
