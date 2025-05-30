@@ -81,5 +81,20 @@ const getCoursesForStudent = async (req, res) => {
     }
 };
 
+const getAllGradesByStudentId = async (req, res) => {
+    try {
+        const grades = await Grade.find({
+            user: req.params.id,
+            grade: { $ne: null }
+        }).populate('user').populate('course');
 
-module.exports = {getAll, create, edit, deleteById , getCoursesForStudent  };
+        res.status(200).json(grades);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Erreur lors de la récupération des notes." });
+    }
+}
+
+
+
+module.exports = {getAll, create, edit, deleteById , getCoursesForStudent , getAllGradesByStudentId };

@@ -85,7 +85,8 @@ app.route(prefix + '/grades')
     .post(secure, grade.create)
 app.route(prefix + '/grades/:id')
     .put(secure, grade.edit)
-    .delete(secure, grade.deleteById);
+    .delete(secure, grade.deleteById)
+    .get(grade.getAllGradesByStudentId);
 
 app.route(prefix + '/studentcourse/:id')
     .get(secure, grade.getCoursesForStudent)
