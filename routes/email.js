@@ -9,6 +9,10 @@ exports.sendBulletins = async (req, res) => {
     try {
       const bulletins = await getGradesBetweenDates(startDate, endDate);
       const { transporter, testAccount } = await createTestAccount();
+
+      if (!bulletins || bulletins.length === 0) {
+        return res.status(204).json({ message: "Aucun bulletin à envoyer pour cette période." });
+      }
   
       for (const bulletin of bulletins) {
         const pdfBuffer = await generatePdfBuffer(
@@ -35,7 +39,7 @@ exports.sendBulletins = async (req, res) => {
         console.log('Preview URL: ' + nodemailer.getTestMessageUrl(info));
       }
   
-      res.status(200).json({ message: "Emails envoyés (test)" });
+      res.status(200).json({ message: "Emails envoyés " });
   
     } catch (err) {
       console.error(err);
