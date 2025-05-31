@@ -40,7 +40,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(cors({
-    origin: ['http://localhost:5173','https://frontend-production-bba3.up.railway.app'],
+    origin: ['http://localhost:5173','https://frontend-production-19878.up.railway.app'],
     credentials: true
 }));
 
