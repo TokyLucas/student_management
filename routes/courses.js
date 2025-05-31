@@ -11,6 +11,9 @@ function getAll(req, res) {
 
 function create(req, res) {
     let course = new Course();
+    if (!req.body.name || !req.body.code) {
+        return res.status(400).json({ error: 'Les champs "name" et "code" sont obligatoires et ne doivent pas être vides.' });
+    }
     course.name = req.body.name;
     course.code = req.body.code;
 

@@ -11,9 +11,24 @@ function getAll(req, res) {
     });
 }
 
+function deleteAllGrades(req, res) {
+    Grade.deleteMany({})
+    .then(() => {
+    res.json({ message: 'Toutes les notes ont été supprimées.' });
+    })
+    .catch((err) => {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur lors de la suppression des notes.', details: err.message });
+    });
+}
+
 
 function create(req, res) {
     let grade = new Grade();
+
+    if (!req.body.user || !req.body.course) {
+        return res.status(400).json({ error: 'Les champs "user" et "course" sont obligatoires et ne doivent pas être vides.' });
+    }
 
     grade.user = req.body.user;
     grade.course = req.body.course;
@@ -25,8 +40,8 @@ function create(req, res) {
                 res.json({message: `grade saved with id ${grade.id}!`});
             }
         ).catch((err) => {
-        console.log(err);
-        res.status(400).send('cant post grade ', err.message);
+        console.error(err);
+        res.status(400).json({ error: 'can\'t save', details: err.message });
     });
 }
 
@@ -164,4 +179,4 @@ const getAllGradesByStudentId = async (req, res) => {
 
 
 
-module.exports = {getAll, create, edit, deleteById , getCoursesForStudent , getAllGradesByStudentId , getGradesBetweenDates };
+module.exports = {getAll, create, edit, deleteById , getCoursesForStudent , getAllGradesByStudentId , getGradesBetweenDates , deleteAllGrades };
