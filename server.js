@@ -10,6 +10,7 @@ let oauth = require('./routes/auth');
 let user = require('./routes/users');
 let course = require('./routes/courses');
 let grade = require('./routes/grades');
+let email = require('./routes/email');
 
 let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -83,6 +84,8 @@ app.route(prefix + '/courses/:id')
 app.route(prefix + '/grades')
     .get(grade.getAll)
     .post(secure, grade.create)
+    .post(secure, grade.getGradesBetweenDates);
+
 app.route(prefix + '/grades/:id')
     .put(secure, grade.edit)
     .delete(secure, grade.deleteById)
@@ -94,6 +97,9 @@ app.route(prefix + '/studentcourse/:id')
 app.route( prefix + '/students')
     .get(user.getAllStudent);
 
+app.route(prefix + '/sendEmail')
+    .post(email.sendBulletins);
+    
 // On démarre le serveur
 app.listen(port, "0.0.0.0");
 console.log('Serveur démarré sur http://localhost:' + port);
