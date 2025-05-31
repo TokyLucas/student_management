@@ -1,4 +1,5 @@
 let {Course} = require('../model/schemas');
+let { Grade } = require('../model/schemas');
 
 function getAll(req, res) {
     Course.find().then((classes) => {
@@ -51,15 +52,31 @@ function edit(req, res) {
 function deleteById (req, res) {
     const courseId = req.params.id;
 
-    Course.findByIdAndDelete(courseId)
-        .then((deletedCourse) => {
-            if (!deletedCourse) {
+    Course.findById(courseId)
+        .then(async (course) => {
+            if (!course) {
                 return res.status(404).json({ message: 'Course not found' });
             }
-            res.json({ message: `Course with id ${deletedCourse.id} deleted successfully!` });
+
+            try {
+                await Grade.deleteMany({ course: courseId });
+                console.log(`Tous les grades liés au cours ${courseId} ont été supprimés.`);
+            } catch (err) {
+                console.error("Erreur lors de la suppression des grades :", err);
+                return res.status(500).json({ error: "Erreur lors de la suppression des notes liées au cours." });
+            }
+
+            return Course.findByIdAndDelete(courseId);
+        })
+        .then((deletedCourse) => {
+            if (!deletedCourse) {
+                return res.status(404).json({ message: 'Course not found after delete attempt' });
+            }
+            res.json({ message: `Course with id ${deletedCourse.id} and related grades deleted successfully.` });
         })
         .catch((err) => {
-            res.status(500).send('Error deleting course: ' + err);
+            console.error("Erreur lors de la suppression du cours :", err);
+            res.status(500).send('Erreur lors de la suppression du cours : ' + err);
         });
 }
 
