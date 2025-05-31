@@ -81,6 +81,73 @@ const getCoursesForStudent = async (req, res) => {
     }
 };
 
+const getGradesBetweenDates = async (startDate, endDate) => {
+    try {
+        const grades = await Grade.find({
+            grade: { $ne: null },
+            date: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            }
+        }).populate('user').populate('course');
+
+        const groupedByStudent = {};
+
+        grades.forEach(g => {
+            const userId = g.user._id.toString();
+
+            if (!groupedByStudent[userId]) {
+                groupedByStudent[userId] = {
+                    student: {
+                        nom: g.user.nom,
+                        prenom: g.user.prenom,
+                        email: g.user.email
+                    },
+                    notes: [],
+                    total: 0,
+                    count: 0
+                };
+            }
+
+            groupedByStudent[userId].notes.push({
+                course: {
+                    name: g.course.name,
+                    code: g.course.code
+                },
+                grade: g.grade,
+                date: g.date.toISOString().split('T')[0]
+            });
+
+            groupedByStudent[userId].total += g.grade;
+            groupedByStudent[userId].count += 1;
+        });
+
+        const result = Object.values(groupedByStudent).map(entry => {
+            const moyenne = entry.count > 0 ? entry.total / entry.count : 0;
+
+            let mention = "Insuffisant";
+            if (moyenne >= 16) mention = "Très bien";
+            else if (moyenne >= 14) mention = "Bien";
+            else if (moyenne >= 12) mention = "Assez bien";
+            else if (moyenne >= 10) mention = "Passable";
+
+            return {
+                student: entry.student,
+                notes: entry.notes,
+                moyenne: Number(moyenne.toFixed(2)),
+                mention
+            };
+        });
+
+        return result;
+
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
+
+
 const getAllGradesByStudentId = async (req, res) => {
     try {
         const grades = await Grade.find({
@@ -97,4 +164,4 @@ const getAllGradesByStudentId = async (req, res) => {
 
 
 
-module.exports = {getAll, create, edit, deleteById , getCoursesForStudent , getAllGradesByStudentId };
+module.exports = {getAll, create, edit, deleteById , getCoursesForStudent , getAllGradesByStudentId , getGradesBetweenDates };
